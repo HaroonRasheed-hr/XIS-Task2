@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import useImages from './hooks/useImages';
 import DropZone from './components/DropZone';
 import ImageCard from './components/ImageCard';
@@ -6,9 +7,11 @@ import ListCard from './components/ListCard';
 import PreviewModal from './components/PreviewModal';
 import ConfirmModal from './components/ConfirmModal';
 import Toast from './components/Toast';
+import LoginPage from './components/LoginPage';
+import SignupPage from './components/SignupPage';
 import { GridIcon, ListIcon, ImageIcon } from './components/Icons';
 
-export default function App() {
+function Dashboard() {
    const { images, uploading, progress, totalMB, uniqueTypes, loading, error, addFiles, deleteImage } = useImages();
 
    const [view, setView] = useState('grid');
@@ -124,5 +127,20 @@ export default function App() {
          {error && <Toast key={Date.now()} msg={error} type="err" onDone={() => {}} />}
          {toast && <Toast key={Date.now()} msg={toast.msg} type={toast.type} onDone={() => setToast(null)} />}
       </>
+   );
+}
+
+export default function App() {
+   const isAuthenticated = !!localStorage.getItem('authToken');
+
+   return (
+      <Router>
+         <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} />
+            <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+         </Routes>
+      </Router>
    );
 }
