@@ -124,7 +124,7 @@ function Dashboard() {
 
          {preview && <PreviewModal image={preview} onClose={() => setPreview(null)} onDelete={(img) => { setConfirm(img); setPreview(null); }} />}
          {confirm && <ConfirmModal image={confirm} onClose={() => setConfirm(null)} onConfirm={handleDelete} />}
-         {error && <Toast key={Date.now()} msg={error} type="err" onDone={() => {}} />}
+         {error && <Toast key={Date.now()} msg={error} type="err" onDone={() => { }} />}
          {toast && <Toast key={Date.now()} msg={toast.msg} type={toast.type} onDone={() => setToast(null)} />}
       </>
    );
