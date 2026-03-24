@@ -16,11 +16,11 @@ const createAuthAxios = () => {
       baseURL: 'http://localhost:8000/api',
       headers: {}
    };
-   
+
    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
    }
-   
+
    return axios.create(config);
 };
 
@@ -47,7 +47,7 @@ export default function useImages() {
       try {
          setLoading(true);
          const token = localStorage.getItem('authToken');
-         
+
          if (!token) {
             setError('Please login to view your images');
             setLoading(false);
@@ -73,7 +73,7 @@ export default function useImages() {
 
    const addFiles = useCallback(async (files) => {
       const token = localStorage.getItem('authToken');
-      
+
       if (!token) {
          setError('Please login to upload images');
          return;
@@ -119,7 +119,7 @@ export default function useImages() {
 
    const deleteImage = useCallback(async (id) => {
       const token = localStorage.getItem('authToken');
-      
+
       if (!token) {
          setError('Please login to delete images');
          return;
