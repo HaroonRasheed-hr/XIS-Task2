@@ -10,6 +10,7 @@ class UserProfile(models.Model):
         return f"{self.user.get_full_name()} - Profile"
 
 class Image(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='images', null=True, blank=True)
     name = models.CharField(max_length=255)
     file = models.ImageField(upload_to='images/')
     size = models.CharField(max_length=50)

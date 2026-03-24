@@ -9,42 +9,86 @@ const formatBytes = (bytes) => {
    return `${(bytes / 1048576).toFixed(1)} MB`;
 };
 
+// Create axios instance with auth headers
+const createAuthAxios = () => {
+   const token = localStorage.getItem('authToken');
+   const config = {
+      baseURL: 'http://localhost:8000/api',
+      headers: {}
+   };
+   
+   if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+   }
+   
+   return axios.create(config);
+};
+
 export default function useImages() {
    const [images, setImages] = useState([]);
    const [uploading, setUploading] = useState(false);
    const [progress, setProgress] = useState(0);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null);
+   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-   // Fetch all images on mount
+   // Check authentication on mount
    useEffect(() => {
-      fetchImages();
+      const token = localStorage.getItem('authToken');
+      setIsAuthenticated(!!token);
+      if (token) {
+         fetchImages();
+      } else {
+         setLoading(false);
+      }
    }, []);
 
    const fetchImages = useCallback(async () => {
       try {
          setLoading(true);
-         const response = await axios.get(API_URL);
+         const token = localStorage.getItem('authToken');
+         
+         if (!token) {
+            setError('Please login to view your images');
+            setLoading(false);
+            return;
+         }
+
+         const client = createAuthAxios();
+         const response = await client.get('/images/');
          setImages(response.data.results || response.data);
          setError(null);
       } catch (err) {
          console.error('Error fetching images:', err);
-         setError('Failed to load images');
+         if (err.response?.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+         } else {
+            setError('Failed to load images');
+         }
       } finally {
          setLoading(false);
       }
    }, []);
 
    const addFiles = useCallback(async (files) => {
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+         setError('Please login to upload images');
+         return;
+      }
+
       setUploading(true);
       setProgress(0);
 
       try {
+         const client = createAuthAxios();
          const uploadPromises = Array.from(files).map((file) => {
             const formData = new FormData();
             formData.append('file', file);
 
-            return axios.post(API_URL, formData, {
+            return client.post('/images/', formData, {
                headers: { 'Content-Type': 'multipart/form-data' },
                onUploadProgress: (progressEvent) => {
                   const percentCompleted = Math.round(
@@ -61,7 +105,12 @@ export default function useImages() {
          setError(null);
       } catch (err) {
          console.error('Error uploading images:', err);
-         setError('Failed to upload images');
+         if (err.response?.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+         } else {
+            setError('Failed to upload images');
+         }
       } finally {
          setUploading(false);
          setProgress(0);
@@ -69,13 +118,28 @@ export default function useImages() {
    }, []);
 
    const deleteImage = useCallback(async (id) => {
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+         setError('Please login to delete images');
+         return;
+      }
+
       try {
-         await axios.delete(`${API_URL}${id}/`);
+         const client = createAuthAxios();
+         await client.delete(`/images/${id}/`);
          setImages((prev) => prev.filter((img) => img.id !== id));
          setError(null);
       } catch (err) {
          console.error('Error deleting image:', err);
-         setError('Failed to delete image');
+         if (err.response?.status === 401) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/login';
+         } else if (err.response?.status === 403) {
+            setError('You can only delete your own images');
+         } else {
+            setError('Failed to delete image');
+         }
       }
    }, []);
 
@@ -97,5 +161,6 @@ export default function useImages() {
       addFiles,
       deleteImage,
       fetchImages,
+      isAuthenticated,
    };
 }

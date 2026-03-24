@@ -51,6 +51,11 @@ function Dashboard() {
       );
    }
 
+   const handleLogout = () => {
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+   };
+
    return (
       <>
          <div className="orb orb-1" />
@@ -68,6 +73,28 @@ function Dashboard() {
                   <div className="pill"><div className="pill-dot" /><b>{images.length}</b>&nbsp;assets</div>
                   <div className="pill"><b>{totalMB.toFixed(1)} MB</b>&nbsp;stored</div>
                   <div className="pill"><b>{uniqueTypes.length}</b>&nbsp;types</div>
+                  <button 
+                     onClick={handleLogout}
+                     style={{
+                        padding: '8px 16px',
+                        background: 'var(--danger)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease'
+                     }}
+                     onMouseEnter={(e) => {
+                        e.target.style.opacity = '0.8';
+                     }}
+                     onMouseLeave={(e) => {
+                        e.target.style.opacity = '1';
+                     }}
+                  >
+                     Logout
+                  </button>
                </div>
             </header>
 

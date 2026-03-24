@@ -56,10 +56,11 @@ class ImageSerializer(serializers.ModelSerializer):
     date = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
+    user = serializers.StringRelatedField(read_only=True)
     
     class Meta:
         model = Image
-        fields = ['id', 'name', 'size', 'type', 'url', 'date']
+        fields = ['id', 'user', 'name', 'size', 'type', 'url', 'date']
     
     def get_date(self, obj):
         return obj.date_uploaded.strftime('%b %d')
