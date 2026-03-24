@@ -73,7 +73,7 @@ function Dashboard() {
                   <div className="pill"><div className="pill-dot" /><b>{images.length}</b>&nbsp;assets</div>
                   <div className="pill"><b>{totalMB.toFixed(1)} MB</b>&nbsp;stored</div>
                   <div className="pill"><b>{uniqueTypes.length}</b>&nbsp;types</div>
-                  <button 
+                  <button
                      onClick={handleLogout}
                      style={{
                         padding: '8px 16px',
